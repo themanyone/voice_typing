@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# function to process audio into keystrokes
+trans(){
+    # Transcribe text
+    whisper $1 --language English --output_dir /tmp
+
+    # Type text to terminal
+    xdotool type --clearmodifiers --file /tmp/tmp.txt
+    xdotool key space
+    # remove temporary file
+    rm $1
+}
+
+# start doing it
+while true; do
+
+# Make another temporary file to hold audio
+tmp=$(mktemp)
+
+# Listen to mic. The `&` lets it operate in the background.
+# Waits for threshold -18dB of sound level to start recording.
+# This command uses the `silence` effect of `sox` to detect silence in the audio input and stops the recording once there has been 5 seconds of detected silence. The `1 0.1 1%` part of the command specifies the parameters for detecting silence, which means any segments with a duration longer than 0.1 seconds and lower than 1% of the volume level will be considered silent. The `1 5.0 1%` part specifies how long the recording should continue after detecting silence, which means that the recording will stop 5 seconds after the first segment of detected silence. You may need to up this to 5% with poor recording equipment and noisy environments.
+
+rec -c 1 -r 22050 -t mp3 $tmp silence 1 0.1 1% 1 2.0 1% threshold -18dB
+
+# call our functionThis is a test.This is another test.Excellent. We are ready to begin now.
+trans $tmp&
+
+done
