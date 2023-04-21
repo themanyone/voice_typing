@@ -6,8 +6,11 @@ trans(){
     whisper $1 --language English --output_dir /tmp
 
     # Type text to terminal
-    xdotool type --clearmodifiers --file /tmp/tmp.txt
-    xdotool key space
+    # Thanks for watching! seems to happen due to noise.
+    if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
+        xdotool type --clearmodifiers --file /tmp/tmp.txt
+        xdotool key space
+    fi
     # remove temporary file
     rm $1
 }
@@ -19,12 +22,12 @@ while true; do
 tmp=$(mktemp)
 
 # Listen to mic. The `&` lets it operate in the background.
-# Waits for threshold -18dB of sound level to start recording.
-# This command uses the `silence` effect of `sox` to detect silence in the audio input and stops the recording once there has been 5 seconds of detected silence. The `1 0.1 1%` part of the command specifies the parameters for detecting silence, which means any segments with a duration longer than 0.1 seconds and lower than 1% of the volume level will be considered silent. The `1 5.0 1%` part specifies how long the recording should continue after detecting silence, which means that the recording will stop 5 seconds after the first segment of detected silence. You may need to up this to 5% with poor recording equipment and noisy environments.
+# The `1 0.1 3%` part of the sox rec command trims 1 segment of silence from the beginning longer than 0.1 seconds and lower than 3% of the volume level.
+# The final `1 2.0 3%` part tells it to trim 1 segment of silence from the end. It stops recording after 2.0 seconds of silence. Change to 5% or more with poor recording equipment and noisy environments.
 
-rec -c 1 -r 22050 -t mp3 $tmp silence 1 0.1 1% 1 2.0 1% threshold -18dB
+rec -c 1 -r 22050 -t mp3 $tmp silence 1 0.2 3% 1 2.0 1%
 
-# call our functionThis is a test.This is another test.Excellent. We are ready to begin now.
+# call our function
 trans $tmp&
 
 done
