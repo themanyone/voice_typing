@@ -12,26 +12,23 @@ trap cleanup 0
 # function to process audio files from queue
 trans(){
     while read audio; do
-        echo "transcribing $audio"
         # transcribe audio
         whisper "$audio" --language English --model small --output_dir /tmp
         # remove temporary audio file
         rm -f "$audio"
-        # Type text to terminal
+        # Type text to terminal, in background
         # Thanks for watching! seems to happen due to noise.
         if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
             xdotool type --clearmodifiers --file /tmp/tmp.txt
             xdotool key space
             rm -f /tmp/tmp.txt
-        fi
+        fi &
     done < "$audio_fifo"
     #cleanup
     rm -f "$audio_fifo"
 }
 
-# start audio transciption handler in the background
-trans &
-
+# record audio in background
 while true; do
     # Make temporary files to hold audio
     tmp=$(mktemp)
@@ -47,4 +44,7 @@ while true; do
     
     # echo temporary audio file name to transcription queue
     echo "$tmp"
-done > "$audio_fifo"
+done > "$audio_fifo" &
+
+# run audio transciption handler
+trans
