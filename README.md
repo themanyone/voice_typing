@@ -31,6 +31,10 @@ cd voice_typing
 ./voice_typing
 ```
 
+Adjust mic volume for best result.
+
+Report issues in the [GitHub issue tracker](https://github.com/themanyone/voice_typing/issues). Or fork the project and submit a pull request.
+
 Browse Themanyone
 - GitHub https://github.com/themanyone
 - YouTube https://www.youtube.com/themanyone

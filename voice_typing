@@ -3,7 +3,7 @@
 # fifo queue to hold temporary audio file names
 audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
 
-## create a trap to remove temp files on exit
+## create a trap to remove temp files on untimely exit
 cleanup() {
     rm -f /tmp/tmp.txt "$audio_fifo"
 }
