@@ -1,36 +1,50 @@
 #!/bin/bash
 
-# function to process audio into keystrokes
-trans(){
-    # Transcribe text
-    whisper $1 --language English --model small --output_dir /tmp
+# fifo queue to hold temporary audio file names
+audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
 
-    # Type text to terminal
-    # Thanks for watching! seems to happen due to noise.
-    if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
-        xdotool type --clearmodifiers --file /tmp/tmp.txt
-        xdotool key space
-    fi
-    # remove temporary file
-    rm $1
+## create a trap to remove temp files on exit
+cleanup() {
+    rm -f /tmp/tmp.txt "$audio_fifo"
+}
+trap cleanup 0
+
+# function to process audio files from queue
+trans(){
+    while read audio; do
+        echo "transcribing $audio"
+        # transcribe audio
+        whisper "$audio" --language English --model small --output_dir /tmp
+        # remove temporary audio file
+        rm -f "$audio"
+        # Type text to terminal
+        # Thanks for watching! seems to happen due to noise.
+        if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
+            xdotool type --clearmodifiers --file /tmp/tmp.txt
+            xdotool key space
+            rm -f /tmp/tmp.txt
+        fi
+    done < "$audio_fifo"
+    #cleanup
+    rm -f "$audio_fifo"
 }
 
-# start doing it
+# start audio transciption handler in the background
+trans &
+
 while true; do
+    # Make temporary files to hold audio
+    tmp=$(mktemp)
 
-# Make another temporary file to hold audio
-tmp=$(mktemp)
+    # Listen to mic. The `&` lets it operate in the background.
+    # The `1 0.2 3%` part of the sox rec command trims 1 segment of silence from
+    # the beginning longer than 0.2 seconds and longer than 3% of the volume level.
+    # The final `1 2.0 1%` part tells it to trim 1 segment of silence from the end.
+    # It stops recording after 2.0 seconds of silence. Change to 5% or more with
+    # poor recording equipment and noisy environments.
 
-# Listen to mic. The `&` lets it operate in the background.
-# The `1 0.2 3%` part of the sox rec command trims 1 segment of silence from
-# the beginning longer than 0.2 seconds and longer than 3% of the volume level.
-# The final `1 2.0 1%` part tells it to trim 1 segment of silence from the end.
-# It stops recording after 2.0 seconds of silence. Change to 5% or more with
-# poor recording equipment and noisy environments.
-
-rec -c 1 -r 22050 -t mp3 $tmp silence 1 0.2 3% 1 2.0 1%
-
-# call our function
-trans $tmp&
-
-done
+    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 3% 1 2.0 1%
+    
+    # echo temporary audio file name to transcription queue
+    echo "$tmp"
+done > "$audio_fifo"
