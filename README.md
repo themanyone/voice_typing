@@ -11,15 +11,15 @@ State-of-the-art voice typing to the Linux desktop (or WFL sesson on Windows.) w
 
 Whisper has to load up each time speech is detected, which means a noticeable wait before text appears. 
 
-For faster, continuous dictation, try this [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until the app clses. And there are gigabytes of dependencies to install.
+For faster, continuous dictation, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until the app clses. And there are gigabytes of dependencies to install.
 
 ## Requirements
-- whisper AI https://github.com/openai/whisper
-- ffmpeg
-- sox
-- lame
-- xdotool
-- screen (optional)
+- [Whisper AI](https://github.com/openai/whisper)
+- [ffmpeg](https://ffmpeg.org/)
+- [sox](https://sox.sourceforge.net/)
+- [lame](https://lame.sourceforge.io/)
+- [xdotool](https://github.com/jordansissel/xdotool)
+- [screen](https://linuxize.com/post/how-to-use-linux-screen/) (optional)
 
 ## Setup
 
