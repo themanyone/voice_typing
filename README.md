@@ -7,13 +7,11 @@ State-of-the-art voice typing to the Linux desktop (or WFL sesson on Windows.) w
 - Leverages `xdotool` to type text into the current window.
 - Low memory requirements. Resources are freed-up between each spoken interaction.
 
-## Disadvantages
+## Notes
 
 Whisper has to load up each time speech is detected, which means a noticeable wait before text appears. 
 
-For faster, continuous dictation, try my [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until you completely close the app. And there are gigabytes of dependencies to install.
-
-These experimental scripts bring AI to average users with entry-level video cards.
+For faster, continuous dictation, try this [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until the app clses. And there are gigabytes of dependencies to install.
 
 ## Requirements
 - whisper AI https://github.com/openai/whisper
@@ -25,7 +23,7 @@ These experimental scripts bring AI to average users with entry-level video card
 
 ## Setup
 
-We assume you have [Whisper AI](https://github.com/openai/whisper) installed and working.
+We assume you have [Whisper AI](https://github.com/openai/whisper) installed and working. Examine `voice_typing` bash script and feel free to customize it. It's only 50 lines. Don't run untrusted code.
 
 ```
 dnf -y install sox lame xdotool
