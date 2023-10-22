@@ -9,9 +9,9 @@ State-of-the-art voice typing to the Linux desktop (or WFL sesson on Windows.) w
 
 ## Notes
 
-Whisper has to load up each time speech is detected, which means a noticeable wait before text appears. 
+Whisper has to load up each time speech is detected, which means a noticeable wait before text appears.
 
-For faster, continuous dictation, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until the app clses. And there are gigabytes of dependencies to install.
+For faster, continuous dictation, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) project, which uses whisper-jax and threads to dramatically speed up dictation, while also enabling other features, such as AI Chat and enhanced voice controls. The disadvantage of that approach is it hogs GPU resources until the app closes. And there are gigabytes of dependencies to install.
 
 ## Requirements
 - [Whisper AI](https://github.com/openai/whisper)
@@ -23,7 +23,7 @@ For faster, continuous dictation, try the [whisper_dictation](https://github.com
 
 ## Setup
 
-We assume you have [Whisper AI](https://github.com/openai/whisper) installed and working. Examine `voice_typing` bash script and feel free to customize it. It's only 50 lines. Don't run untrusted code.
+This assumes [Whisper AI](https://github.com/openai/whisper) and other dependencies are installed and working. Most are available through the official software update app for each platform. Please examine `voice_typing` bash script and feel free to customize it. It's only 50 lines. Do not run untrusted code.
 
 ```
 dnf -y install sox lame xdotool
