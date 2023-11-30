@@ -4,8 +4,7 @@ State-of-the-art voice typing to the Linux desktop (or WFL sesson on Windows.) w
 
 - Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) for offline speech recognition,
 - Hands-free using `sox` for rudimentary voice activity detection (VAD).
-- Leverages `ydotool` to type text into the current window.
-  - Changed to `ydotool` to work with Wayland and X11
+- Leverages `ydotool` to type text into the current window. (Changed to `ydotool` to work with Wayland and X11)
 - Low memory requirements. Resources are freed-up between each spoken interaction.
 
 ## Notes
@@ -29,7 +28,7 @@ This assumes [Whisper AI](https://github.com/openai/whisper) and other dependenc
 
 For Debian systems:
 ```
-apt install sox lame ydotool openai-whisper libsox-fmt-mp3
+sudo apt install sox lame ydotool openai-whisper libsox-fmt-mp3
 git clone git@github.com:tallmtt/voice_typing.git
 sudo chmod +s $(which ydotool)
 cd voice_typing
@@ -42,7 +41,7 @@ Notes:
 Recommended:
 - Add a Keybinding for mic mute/unmute - Text is generated and fills in after muted (might be the needed because of my poor mic quality)
 
-Report issues in the [GitHub issue tracker](https://github.com/tallmtt/voice_typing/issues). (This is a fork from themanyone)[https://github.com/themanyone/voice_typing]
+Report issues in the [GitHub issue tracker](https://github.com/tallmtt/voice_typing/issues). [This is a fork from themanyone](https://github.com/themanyone/voice_typing)
 
 Thanks for trying voice_typing!
 - Forked from: GitHub https://github.com/themanyone
