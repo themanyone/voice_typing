@@ -34,6 +34,7 @@ sudo chmod +s $(which ydotool)
 cd voice_typing
 ./voice_typing
 ```
+
 Notes:
 - Adjust mic volume for best result.
 - First run might be slow as it needs to download the model (better yet, use whisper from cli first to download the model (tiny))
@@ -45,3 +46,7 @@ Report issues in the [GitHub issue tracker](https://github.com/tallmtt/voice_typ
 
 Thanks for trying voice_typing!
 - Forked from: GitHub https://github.com/themanyone
+
+## Similar Projects
+
+- [Whisper Typer Tool](https://github.com/dynamiccreator/whisper-typer-tool)
