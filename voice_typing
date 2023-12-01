@@ -15,6 +15,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
+# File forked from Henry Kroll III and edited as below by Matthew Rensberry
+
 # fifo queue to hold temporary audio file names
 audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
 
@@ -28,14 +30,15 @@ trap cleanup 0
 trans(){
     while read audio; do
         # transcribe audio
-        whisper "$audio" --language English --model small --output_dir /tmp
+        whisper "$audio" --fp16 False --language English --model tiny --output_dir /tmp
         # remove temporary audio file
         rm -f "$audio"
         # Type text to terminal, in background
         # Thanks for watching! seems to happen due to noise.
         if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
-            xdotool type --clearmodifiers --file /tmp/tmp.txt
-            xdotool key space
+            # ydotool type --clearmodifiers --file /tmp/tmp.txt
+            ydotool type --file /tmp/tmp.txt
+            # ydotool key 57:1 (xdotool had space here for some reason)
             rm -f /tmp/tmp.txt
         fi &
     done < "$audio_fifo"
@@ -56,7 +59,7 @@ while true; do
     # poor recording equipment and noisy environments.
 
     rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 3% 1 2.0 1%
-    
+
     # echo temporary audio file name to transcription queue
     echo "$tmp"
 done > "$audio_fifo" &
