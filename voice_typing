@@ -1,5 +1,7 @@
 #!/bin/bash
 # Copyright (C) 2023 by Henry Kroll III, www.thenerdshow.com
+# 
+# With code contributions by Matthew Rensberry
 #
 # This is free software.  You may redistribute it under the terms
 # of the Apache license and the GNU General Public License Version
@@ -15,8 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-# File forked from Henry Kroll III and edited as below by Matthew Rensberry
-
 # fifo queue to hold temporary audio file names
 audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
 
@@ -30,15 +30,15 @@ trap cleanup 0
 trans(){
     while read audio; do
         # transcribe audio
-        whisper "$audio" --fp16 False --language English --model tiny --output_dir /tmp
+        whisper "$audio" --fp16 False --language English --model tiny\
+        --output_format txt --output_dir /tmp
         # remove temporary audio file
         rm -f "$audio"
         # Type text to terminal, in background
-        # Thanks for watching! seems to happen due to noise.
+        # Thanks for watching! seems to occur frequently due to noise.
         if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
             # ydotool type --clearmodifiers --file /tmp/tmp.txt
             ydotool type --file /tmp/tmp.txt
-            # ydotool key 57:1 (xdotool had space here for some reason)
             rm -f /tmp/tmp.txt
         fi &
     done < "$audio_fifo"
@@ -51,18 +51,19 @@ while true; do
     # Make temporary files to hold audio
     tmp=$(mktemp)
 
-    # Listen to mic. The `&` lets it operate in the background.
-    # The `1 0.2 3%` part of the sox rec command trims 1 segment of silence from
-    # the beginning longer than 0.2 seconds and longer than 3% of the volume level.
-    # The final `1 2.0 1%` part tells it to trim 1 segment of silence from the end.
-    # It stops recording after 2.0 seconds of silence. Change to 5% or more with
-    # poor recording equipment and noisy environments.
+    # Listen to the mic. 
+    # The `1 0.2 4%` part of this command trims one clip of silence
+    # from the beginning. 4% of max volume is considered silence here.
+    # `1 2.0 2%` stops after a 2.0 second pause in speech.
+    # If recording never stops, change pause threshold from 2%
+    # to 5% or more. This can happen with poor recording equipment
+    # or noisy environments with heaters and fans going.
 
-    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 3% 1 2.0 1%
+    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 4% 1 2.0 2%
 
     # echo temporary audio file name to transcription queue
     echo "$tmp"
-done > "$audio_fifo" &
+done > "$audio_fifo" & #The `&` lets recording run in the background.
 
 # run audio transciption handler
 trans
