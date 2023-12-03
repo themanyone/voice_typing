@@ -52,9 +52,9 @@ Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
 ## Notes
 
 - Adjust mic volume for best result. If recording never stops, edit `voice_typing` and change silence / pause threshold from 4% and 2% to something higher.
-```rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 2.0 5%```
+```rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%```
 
-- Recommend adding a Keybinding for mic mute/unmute. If there is noise in the background, it goes into a recording loop and never gets around to typing text.
+- Add a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
 
 - First run might be slow as it needs to download the model (better yet, use whisper from cli first to download the model (tiny))
 
@@ -87,3 +87,4 @@ Thanks for trying voice_typing!
 ## Similar Projects
 
 - [Whisper Typer Tool](https://github.com/dynamiccreator/whisper-typer-tool)
+- [Whisper Dictation](https://github.com/themanyone/whisper_dictation.git)

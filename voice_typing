@@ -59,7 +59,7 @@ while true; do
     # to 5% or more. This can happen with poor recording equipment
     # or noisy environments with heaters and fans going.
 
-    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 4% 1 2.0 2%
+    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 4% 1 1.0 2%
 
     # echo temporary audio file name to transcription queue
     echo "$tmp"
