@@ -1,23 +1,23 @@
 # Voice Typing with Openai-Whisper
 
 State-of-the-art voice typing in Linux terminal (or WFL sesson on Windows.) with a simple bash script.
-Works with all window managers. **No window manager is required.**
+Works with all window managers. **No window manager required.**
 
 - Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition,
 - Hands-free using `sox` for rudimentary voice activity detection (VAD).
-- Leverages `ydotool` to type text at the command line (no X dependency).
-- Low memory requirements. Resources are freed between each spoken interaction.
+- Leverages `ydotool` to type text into any active window (but does not require a graphical OS).
+- Low memory requirements. Resources may be freed between each spoken interaction.
 
 ## Caveats
 
-Whisper loads every time speech is detected. Audio is processed to trim unwanted background noise, which causes a noticeable wait before text appears.
+When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper, which causes a noticeable wait before text appears. It is good for occasional use. And it is the most economical on resources.
 
-To fix issues with loading and unloading Whisper multiple times, we have added `voice_client`. It connects to a CUDA-accelerated [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server running continuously on the same machine, or somewhere across the network. Try it. Users might discover significant speedup. :)
+For heavier usage, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to a CUDA-accelerated [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server runs continuously on the same machine, or somewhere across the network. Try it. Users might discover significant speedup. :)
 
 For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include AI Chat, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
 
 ## Requirements
-- [Whisper AI](https://github.com/openai/whisper)
+- [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
 - [ffmpeg](https://ffmpeg.org/)
 - [sox](https://sox.sourceforge.net/)
 - [lame](https://lame.sourceforge.io/)
@@ -43,6 +43,8 @@ sudo apt install sox curl lame ydotool openai-whisper libsox-fmt-mp3
 
 ## Setup
 
+Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
+
 ```
 git clone https://github.com/themanyone/voice_typing.git
 sudo systemctl enable ydotool.service
@@ -51,24 +53,36 @@ cd voice_typing
 ./voice_typing
 ```
 
-Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
+Speak and text appears. No other interaction is required.
 
 ## Optional Whisper.cpp client/server setup.
 
-To minimize GPU footprint, launch [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server with a command like this. It uses just over 111 MiB VRAM on our budget laptop.
+Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS.
+
+We had to modify `Makefile` to get it to compile.
+`NVCCFLAGS = -allow-unsupported-compiler ...`
+
+To minimize GPU footprint, launch `server` with a command like this. It uses just over 111 MiB VRAM on our budget laptop.
 
 ```shell
-./server -l en -m models/ggml-tiny.en.bin -ng -bs 2 --convert
+./server -l en -m models/ggml-tiny.en.bin --convert
 ```
+
+Due to a [bug](https://github.com/ggerganov/whisper.cpp/issues/1587), it may be necessary to add the `-ng` flag but it does not seem to affect our performance with cuBLAS.
 
 Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
 
+Run it.
+```shell
+./voice_client
+```
+
 ## Notes
 
-- Adjust mic volume for best result. If recording never stops, edit `voice_typing` and change silence / pause threshold from 4% and 2% to something higher.
+- Adjust mic volume for best result. If recording never stops, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher.
 ```rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%```
 
-- Add a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
+- Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
 
 - First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download the model (tiny))
 
