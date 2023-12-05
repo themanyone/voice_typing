@@ -1,0 +1,71 @@
+#!/bin/bash
+# Copyright (C) 2023 by Henry Kroll III, www.thenerdshow.com
+# 
+# With code contributions by Matthew Rensberry
+#
+# This is free software.  You may redistribute it under the terms
+# of the Apache license and the GNU General Public License Version
+# 2 or at your option any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+
+# fifo queue to hold temporary audio file names
+audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
+
+## create a trap to remove temp files on untimely exit
+cleanup() {
+    rm -f /tmp/tmp.txt "$audio_fifo"
+}
+trap cleanup 0
+
+# function to process audio files from queue
+trans(){
+    while read audio; do
+        # Send audio file to whisper.cpp using curl
+        curl_output=$(curl -s "http://127.0.0.1:8080/inference" \
+                        -H "Content-Type: multipart/form-data" \
+                        -F "file=@$audio" \
+                        -F "temperature=0.2" \
+                        -F "response-format=text")
+
+        # remove temporary audio file
+        rm -f "$audio"
+        # Type text to terminal, in background
+        # Thanks for watching! seems to occur frequently due to noise.
+        if [[ "$text_result" != "Thanks for watching!" ]]; then
+            ydotool type "$curl_output"
+        fi &
+    done < "$audio_fifo"
+    #cleanup
+    rm -f "$audio_fifo"
+}
+
+# record audio in background
+while true; do
+    # Make temporary files to hold audio
+    tmp=$(mktemp)
+
+    # Listen to the mic.
+    # The `1 0.2 4%` part of this command trims one clip of silence
+    # from the beginning. 4% of max volume is considered silence here.
+    # `1 1.0 2%` stops after a 1.0 second pause in speech.
+    # If recording never stops, increase sound threshold from 2%
+    # to 5% or more. This can happen with poor recording equipment
+    # or noisy environments with heaters and fans going.
+
+    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 4% 1 1.0 2%
+
+    # echo temporary audio file name to transcription queue
+    echo "$tmp"
+done > "$audio_fifo" & #The `&` lets recording run in the background.
+
+# run audio transciption handler
+trans

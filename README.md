@@ -9,9 +9,11 @@ State-of-the-art voice typing to the Linux desktop (or WFL sesson on Windows.) w
 
 ## Caveats
 
-Whisper has to load up each time speech is detected, and audio is processed to remove unwanted background noise, which means a noticeable wait before text appears.
+To keep system resource usage to a bare minimum, `voice_typing` loads whisper only when speech is detected. And audio is processed to trim unwanted background noise, which means a noticeable wait before text appears. 
 
-For faster, continuous dictation, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project, which uses whisper-jax and threads for faster execution, while also enabling other features, such as networked dictation, AI Chat, AI image generation, and voice-controlled program launchers. The disadvantage of that approach is it constantly consumes 1Gb or more of GPU resources on the server. And there are gigabytes of dependencies to install.
+To work around this, we have added `voice_client`, which connects to any [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server running on the same machine, or across the network. Since clients don't need to have whisper running, users might discover that it is significantly faster. :). Edit `voice_client` with the server's location (localhost).
+
+For even faster, continuous dictation across the network, with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include AI Chat, AI image generation, and voice-controlled program launchers using the power of Python.
 
 ## Requirements
 - [Whisper AI](https://github.com/openai/whisper)
@@ -24,7 +26,7 @@ For faster, continuous dictation, try the [whisper_dictation](https://github.com
 
 ## Install Dependencies
 
-This assumes [Whisper AI](https://github.com/openai/whisper) and its dependencies are installed and working. Most are available through the official software update app for each platform. Please examine `voice_typing` bash script and feel free to customize it. It's around 50 lines is all. Do not run untrusted code.
+This assumes [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and dependencies are installed and working. Most are available through the official software update app for each platform. Please examine `voice_typing` and `voice_client` scripts and see how easy they are to customize for any occasion. They are around 50 lines is all. Do not run untrusted code.
 
 Fedora/Centos:
 ```
@@ -56,7 +58,7 @@ Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
 
 - Add a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
 
-- First run might be slow as it needs to download the model (better yet, use whisper from cli first to download the model (tiny))
+- First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download the model (tiny))
 
 ## Troubleshooting
 "failed to connect socket `/tmp/.ydotool_socket': Permission denied" Error
