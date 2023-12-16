@@ -30,7 +30,7 @@ trap cleanup 0
 trans(){
     while read audio; do
         # Send audio file to whisper.cpp using curl
-        curl_output=$(curl -s "http://127.0.0.1:8080/inference" \
+        curl_output=$(curl -s "http://127.0.0.1:7777/inference" \
                         -H "Content-Type: multipart/form-data" \
                         -F "file=@$audio" \
                         -F "temperature=0.2" \

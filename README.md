@@ -65,7 +65,7 @@ We had to modify `Makefile` to get it to compile.
 To minimize GPU footprint, launch `server` with a command like this. It uses just over 111 MiB VRAM on our budget laptop.
 
 ```shell
-./server -l en -m models/ggml-tiny.en.bin --convert
+./server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
 
 Due to a [bug](https://github.com/ggerganov/whisper.cpp/issues/1587), it may be necessary to add the `-ng` flag but it does not seem to affect our performance with cuBLAS.
