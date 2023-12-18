@@ -36,7 +36,7 @@ trans(){
         rm -f "$audio"
         # Type text to terminal, in background
         # Thanks for watching! seems to occur frequently due to noise.
-        if [[ $(</tmp/tmp.txt) != "Thanks for watching!" ]]; then
+        if [[ "$(</tmp/tmp.txt)" != "Thanks for watching!" ]] && [[ "$(</tmp/tmp.txt)" != *'['* ]]; then
             # ydotool type --clearmodifiers --file /tmp/tmp.txt
             ydotool type --file /tmp/tmp.txt
             rm -f /tmp/tmp.txt

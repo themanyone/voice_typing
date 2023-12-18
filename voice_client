@@ -40,7 +40,7 @@ trans(){
         rm -f "$audio"
         # Type text to terminal, in background
         # Thanks for watching! seems to occur frequently due to noise.
-        if [[ "$text_result" != "Thanks for watching!" ]]; then
+        if [[ "$curl_output" != "Thanks for watching!" ]] && [[ "$curl_output" != *'['* ]]; then
             ydotool type "$curl_output"
         fi &
     done < "$audio_fifo"
