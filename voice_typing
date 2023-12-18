@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright (C) 2023 by Henry Kroll III, www.thenerdshow.com
-# 
+#
 # With code contributions by Matthew Rensberry
 #
 # This is free software.  You may redistribute it under the terms
@@ -34,12 +34,12 @@ trans(){
         --output_format txt --output_dir /tmp
         # remove temporary audio file
         rm -f "$audio"
+        output="$(</tmp/tmp.txt)"; rm -f /tmp/tmp.txt
         # Type text to terminal, in background
         # Thanks for watching! seems to occur frequently due to noise.
-        if [[ "$(</tmp/tmp.txt)" != "Thanks for watching!" ]] && [[ "$(</tmp/tmp.txt)" != *'['* ]]; then
-            # ydotool type --clearmodifiers --file /tmp/tmp.txt
-            ydotool type --file /tmp/tmp.txt
-            rm -f /tmp/tmp.txt
+        if [[ ${#output} > 15 ]] || [[ "$output" != "Thanks for watching!" ]] \
+            && [[ "$output" != *'['* ]]; then
+            ydotool type "$output"
         fi &
     done < "$audio_fifo"
     #cleanup
@@ -50,12 +50,14 @@ trans(){
 while true; do
     # Make temporary files to hold audio
     tmp=$(mktemp)
+    # Remove it on exit
+    trap 'rm "$tmp" ; exit' INT
 
-    # Listen to the mic. 
+    # Listen to the mic.
     # The `1 0.2 4%` part of this command trims one clip of silence
     # from the beginning. 4% of max volume is considered silence here.
-    # `1 2.0 2%` stops after a 2.0 second pause in speech.
-    # If recording never stops, change pause threshold from 2%
+    # `1 1.0 2%` stops after a 1.0 second pause in speech.
+    # If recording never stops, increase sound threshold from 2%
     # to 5% or more. This can happen with poor recording equipment
     # or noisy environments with heaters and fans going.
 

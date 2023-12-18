@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright (C) 2023 by Henry Kroll III, www.thenerdshow.com
-# 
+#
 # With code contributions by Matthew Rensberry
 #
 # This is free software.  You may redistribute it under the terms
@@ -38,9 +38,11 @@ trans(){
 
         # remove temporary audio file
         rm -f "$audio"
+        echo "$curl_output"
         # Type text to terminal, in background
         # Thanks for watching! seems to occur frequently due to noise.
-        if [[ "$curl_output" != "Thanks for watching!" ]] && [[ "$curl_output" != *'['* ]]; then
+        if [[ ${#curl_output} > 15 ]] || [[ "$curl_output" != "Thanks for watching!" ]] \
+            && [[ "$curl_output" != *'['* ]]; then
             ydotool type "$curl_output"
         fi &
     done < "$audio_fifo"
@@ -52,6 +54,8 @@ trans(){
 while true; do
     # Make temporary files to hold audio
     tmp=$(mktemp)
+    # Remove it on exit
+    trap 'rm "$tmp" ; exit' INT
 
     # Listen to the mic.
     # The `1 0.2 4%` part of this command trims one clip of silence
