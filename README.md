@@ -14,7 +14,7 @@ When `voice_typing` detects speech, it trims unwanted background noise, and then
 
 For heavier usage, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to a CUDA-accelerated [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server runs continuously on the same machine, or somewhere across the network. Try it. Users might discover significant speedup. :)
 
-For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include AI Chat, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
+For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include AI Chat, AI image generation, and voice-controlled program launchers leveraging the full power of Python. You might want to take `record.py` from whisper_dictation (just download the file) and adapt this script to use it instead of `sox`. It runs a delay loop that does a much better job of catching the beginning of speech. It requires gstreamer though.
 
 ## Requirements
 - [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
