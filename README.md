@@ -34,11 +34,28 @@ Fedora/Centos:
 ```
 dnf -y install sox curl lame ydotool
 ```
+
 You might need Rpmfusion-freeworld installed to get versions of `lame` and `sox` that write mp3 files. `sudo dnf install \ https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm`
+
+The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` where they say the man page may not be up to date.
 
 Debian-based systems:
 ```
-sudo apt install sox curl lame ydotool openai-whisper libsox-fmt-mp3
+sudo apt install sox curl lame ydotool openai-whisper libsox-fmt-mp3 scdoc
+```
+
+If ydotool is not available, or you need a later version, snwfdhmp commented:
+
+```
+git clone https://github.com/ReimuNotMoe/ydotool
+mkdir build
+cd build
+cmake -DSYSTEMD_SYSTEM_SERVICE=ON -DSYSTEMD_USER_SERVICE=OFF ..
+make -j `nproc`
+sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool
+sudo ln -s $(pwd)/ydotoold /usr/local/bin/ydotoold
+systemctl enable ./ydotoold.service
+systemctl start ydotoold
 ```
 
 ## Setup
