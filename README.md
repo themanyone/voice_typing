@@ -56,7 +56,7 @@ sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool
 sudo ln -s $(pwd)/ydotoold /usr/local/bin/ydotoold
 sudo cp ./ydotoold.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable ./ydotoold.service
+sudo systemctl enable ydotoold.service
 sudo systemctl start ydotoold.service
 ```
 
