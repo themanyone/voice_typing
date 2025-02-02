@@ -54,8 +54,10 @@ cmake -DSYSTEMD_SYSTEM_SERVICE=ON -DSYSTEMD_USER_SERVICE=OFF ..
 make -j `nproc`
 sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool
 sudo ln -s $(pwd)/ydotoold /usr/local/bin/ydotoold
-systemctl enable ./ydotoold.service
-systemctl start ydotoold
+sudo cp ./ydotoold.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable ./ydotoold.service
+sudo systemctl start ydotoold
 ```
 
 ## Setup
