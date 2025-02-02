@@ -52,12 +52,17 @@ mkdir build
 cd build
 cmake -DSYSTEMD_SYSTEM_SERVICE=ON -DSYSTEMD_USER_SERVICE=OFF ..
 make -j `nproc`
-sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool
+sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool 
 sudo ln -s $(pwd)/ydotoold /usr/local/bin/ydotoold
 sudo cp ./ydotoold.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable ydotoold.service
 sudo systemctl start ydotoold.service
+```
+For quick troubleshooting
+```
+sudo systemctl status ydotoold  # Should show "Active: active (running)"
+journalctl -u ydotoold -b | tail -n 20
 ```
 
 ## Setup
