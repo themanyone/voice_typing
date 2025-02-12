@@ -48,6 +48,7 @@ If ydotool is not available, or you need a later version, snwfdhmp commented:
 
 ```
 git clone https://github.com/ReimuNotMoe/ydotool
+cd ydotool
 mkdir build
 cd build
 cmake -DSYSTEMD_SYSTEM_SERVICE=ON -DSYSTEMD_USER_SERVICE=OFF ..
