@@ -33,6 +33,10 @@ This assumes [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](ht
 Fedora/Centos:
 ```
 dnf -y install sox curl lame ydotool
+sudo cp /usr/lib/systemd/system/ydotool.service /etc/systemd/system/
+sudo systemctl enable ydotool
+sudo systemctl start ydotool
+sudo chmod +s $(which ydotool)
 ```
 
 You might need Rpmfusion-freeworld installed to get versions of `lame` and `sox` that write mp3 files. `sudo dnf install \ https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm`
@@ -57,7 +61,7 @@ sudo ln -s $(pwd)/ydotool /usr/local/bin/ydotool
 sudo ln -s $(pwd)/ydotoold /usr/local/bin/ydotoold
 sudo cp ./ydotoold.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable ydotoold.service
+sudo systemctl enable ydotoold.service # later changed to ydotool.service
 sudo systemctl start ydotoold.service
 ```
 For quick troubleshooting
@@ -74,6 +78,7 @@ Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
 git clone https://github.com/themanyone/voice_typing.git
 sudo systemctl enable ydotool.service
 sudo systemctl start ydotool.service
+ydotool type hello!
 cd voice_typing
 ./voice_typing
 ```
