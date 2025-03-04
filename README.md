@@ -34,6 +34,7 @@ Fedora/Centos:
 ```
 dnf -y install sox curl lame ydotool
 sudo cp /usr/lib/systemd/system/ydotool.service /etc/systemd/system/
+sudo systemctl daemon-reload
 sudo systemctl enable ydotool
 sudo systemctl start ydotool
 sudo chmod +s $(which ydotool)
