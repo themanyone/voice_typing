@@ -1,7 +1,8 @@
 # Voice Typing with Openai-Whisper
 
-State-of-the-art voice typing in Linux terminal (or WFL sesson on Windows.) with a simple bash script.
-Works with all window managers. **No window manager required.**
+State-of-the-art, offline voice typing in Linux tty (or WFL sesson on Windows.) with a tiny bash script.
+
+**No grapical OS required.** Yet it *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
 
 - Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition,
 - Hands-free using `sox` for rudimentary voice activity detection (VAD).
@@ -12,9 +13,11 @@ Works with all window managers. **No window manager required.**
 
 When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper, which causes a noticeable wait before text appears. It is good for occasional use. And it is the most economical on resources.
 
-For heavier usage, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to a CUDA-accelerated [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server runs continuously on the same machine, or somewhere across the network. Try it. Users might discover significant speedup. :)
+For heavier usage, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to your [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server may run continuously on the same machine, or a dedicated GPU server somewhere across the network. Try it. Users might discover significant speedup. :)
 
-For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include AI Chat, AI image generation, and voice-controlled program launchers leveraging the full power of Python. You might want to take `record.py` from whisper_dictation (just download the file) and adapt this script to use it instead of `sox`. It runs a delay loop that does a much better job of catching the beginning of speech. It requires gstreamer though.
+For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
+
+**End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool). If you have time, take [record.py](https://github.com/themanyone/whisper_dictation/blob/main/record.py) from [whisper_dictation](https://github.com/themanyone/whisper_dictation.git). Just (click to download the file) and adapt this script to use that instead of `sox`. It runs a delay loop "time machine" that rewinds to catch the beginning of speech. So you don't have to clear your throat or say, "hey Linus" before talking. Gstreamer-1.0 is required to run it though. And some people prefer minimal [emebeded systems on a chip](https://www.reddit.com/r/embedded/comments/16xakmp/how_to_design_a_simple_pcb_running_linux/).
 
 ## Requirements
 - [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
@@ -23,7 +26,7 @@ For even-faster, continuous, networked dictation with more features, try the [wh
 - [lame](https://lame.sourceforge.io/)
 - <del>[xdotool](https://github.com/jordansissel/xdotool)</del>
   - [ydotool](https://github.com/ReimuNotMoe/ydotool)
-- [screen](https://linuxize.com/post/how-to-use-linux-screen/) (optional)
+- [tmux](https://github.com/tmux/tmux/wiki) or [screen](https://linuxize.com/post/how-to-use-linux-screen/) (optional)
 - [curl](https://curl.se/) (for clients)
 
 ## Install Dependencies
@@ -109,7 +112,7 @@ Run it.
 
 ## Notes
 
-- Adjust mic volume for best result. If recording never stops, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher.
+- Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher.
 ```rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%```
 
 - Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
