@@ -94,14 +94,14 @@ Speak and text appears. No other interaction is required.
 
 Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to use conda or docker to install an earlier version of `gcc`, currently `gcc-12`.
 
-To minimize GPU footprint, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits.) We launch under a simlink to, `whisper_cpp_server` to make it less confusing when `server` shows up in the process list.
+You may run into [issues](https://github.com/ggerganov/whisper.cpp/issues/1587) that make you want to try compiling with `-allow-unsupported-compiler`. Not recommended. The `-ng` (no graphics) flag will make it work though. Runing with `-ng` is not ideal, but matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
+
+To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits, which is also usable with no graphics card). We launch under a simlink to, `whisper_cpp_server` to make it less confusing when `server` shows up in the process list.
 
 ```shell
 ln -s $(pwd)/server whisper_cpp_server
 ./whisper_cpp_server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
-
-There could be [issues](https://github.com/ggerganov/whisper.cpp/issues/1587), if compiled with `-allow-unsupported-compiler`. The `-ng` flag will make it work. Although `-ng` is not ideal, matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
 
 Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
 
