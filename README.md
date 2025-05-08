@@ -92,7 +92,7 @@ Speak and text appears. No other interaction is required.
 
 ## Optional Whisper.cpp client/server setup.
 
-Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to use conda or docker to install an earlier version of `gcc`, currently `gcc-12`.
+Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms to install the compatability version of `gcc`, currently `gcc-13`. Fedora 42 with version 15 of gcc is not supported. But it can work if you remove the compatability version of `gcc-14` and replace it with `gcc-13` from Fedora 41 repos. [Refer to the writeup for whisier_dictatio](https://github.com/themanyone/whisper_dictation#Preparation).
 
 You may run into [issues](https://github.com/ggerganov/whisper.cpp/issues/1587) that make you want to try compiling with `-allow-unsupported-compiler`. Not recommended. The `-ng` (no graphics) flag will make it work though. Runing with `-ng` is not ideal, but matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
 
