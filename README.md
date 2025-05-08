@@ -96,11 +96,10 @@ Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type o
 
 You may run into [issues](https://github.com/ggerganov/whisper.cpp/issues/1587) that make you want to try compiling with `-allow-unsupported-compiler`. Not recommended. The `-ng` (no graphics) flag will make it work though. Runing with `-ng` is not ideal, but matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
 
-To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits, which is also usable with no graphics card). We launch under a simlink to, `whisper_cpp_server` to make it less confusing when `server` shows up in the process list.
+To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits, which is also usable with no graphics card).
 
 ```shell
-ln -s $(pwd)/server whisper_cpp_server
-./whisper_cpp_server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
+./whisper-server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
 
 Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
@@ -149,3 +148,16 @@ Thanks for trying voice_typing!
 
 - [Whisper Typer Tool](https://github.com/dynamiccreator/whisper-typer-tool)
 - [Whisper Dictation](https://github.com/themanyone/whisper_dictation.git)
+
+### Thanks for trying out Voice Typing!
+
+- GitHub https://github.com/themanyone
+- YouTube https://www.youtube.com/themanyone
+- Mastodon https://mastodon.social/@themanyone
+- Linkedin https://www.linkedin.com/in/henry-kroll-iii-93860426/
+- Buy me a coffee https://buymeacoffee.com/isreality
+- [TheNerdShow.com](http://thenerdshow.com/)
+
+Copyright (C) 2024-2025 Henry Kroll III, www.thenerdshow.com.
+See [LICENSE](LICENSE) for details.
+
