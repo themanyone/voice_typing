@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2023 by Henry Kroll III, www.thenerdshow.com
+# Copyright (C) 2026 by Henry Kroll III, www.thenerdshow.com
 #
 # With code contributions by Matthew Rensberry
 #
@@ -34,16 +34,19 @@ trans(){
                         -H "Content-Type: multipart/form-data" \
                         -F "file=@$audio" \
                         -F "temperature=0.2" \
-                        -F "response-format=text")
+                        -F "response-format=json")
+
+        # Parse JSON to extract text
+        extracted_text=$(echo "$curl_output" | jq -r '.text')
 
         # remove temporary audio file
         rm -f "$audio"
-        echo "$curl_output"
+        echo "$extracted_text"
         # Type text to terminal, in background
         # Thanks for watching! seems to occur frequently due to noise.
-        if [[ ${#curl_output} > 15 ]] || [[ "$curl_output" != "Thanks for watching!" ]] \
-            && [[ "$curl_output" != *'['* ]]; then
-            ydotool type "$curl_output"
+        if [[ ${#extracted_text} > 15 ]] || [[ "$extracted_text" != "Thanks for watching!" ]] \
+            && [[ "$extracted_text" != *'['* ]]; then
+            ydotool type "$extracted_text"
         fi &
     done < "$audio_fifo"
     #cleanup

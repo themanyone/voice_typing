@@ -6,7 +6,7 @@ State-of-the-art, offline voice typing in Linux tty (or WFL sesson on Windows.) 
 
 - Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition,
 - Hands-free using `sox` for rudimentary voice activity detection (VAD).
-- Leverages `ydotool` to type text into any active window (but does not require a graphical OS).
+- Leverages `ydotool` to type text into any active window with a virtual keyboard.
 - Low memory requirements. Resources may be freed between each spoken interaction.
 
 ## Caveats
@@ -24,8 +24,8 @@ For even-faster, continuous, networked dictation with more features, try the [wh
 - [ffmpeg](https://ffmpeg.org/)
 - [sox](https://sox.sourceforge.net/)
 - [lame](https://lame.sourceforge.io/)
-- <del>[xdotool](https://github.com/jordansissel/xdotool)</del>
-  - [ydotool](https://github.com/ReimuNotMoe/ydotool)
+- [ydotool](https://github.com/ReimuNotMoe/ydotool)
+- [jq](https://jqlang.org/)
 - [tmux](https://github.com/tmux/tmux/wiki) or [screen](https://linuxize.com/post/how-to-use-linux-screen/) (optional)
 - [curl](https://curl.se/) (for clients)
 
@@ -35,7 +35,7 @@ This assumes [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](ht
 
 Fedora/Centos:
 ```
-dnf -y install sox curl lame ydotool
+dnf -y install sox curl lame ydotool jq
 sudo cp /usr/lib/systemd/system/ydotool.service /etc/systemd/system/
 sudo chmod +x /etc/systemd/system/ydotool.service
 sudo systemctl daemon-reload
@@ -50,7 +50,7 @@ The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` whe
 
 Debian-based systems:
 ```
-sudo apt install sox curl lame ydotool openai-whisper libsox-fmt-mp3 scdoc
+sudo apt install sox curl lame ydotool openai-whisper libsox-fmt-mp3 jq
 ```
 
 If ydotool is not available, or you need a later version, snwfdhmp commented:
@@ -92,7 +92,7 @@ Speak and text appears. No other interaction is required.
 
 ## Optional Whisper.cpp client/server setup.
 
-Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms to install the compatability version of `gcc`, currently `gcc-13`. Fedora 42 with version 15 of gcc is not supported. But it can work if you remove the compatability version of `gcc-14` and replace it with `gcc-13` from Fedora 41 repos. [Refer to the writeup for whisier_dictatio](https://github.com/themanyone/whisper_dictation#Preparation).
+Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms to install the compatability version of `gcc`, currently `gcc-13`. Fedora 42 with version 15 of gcc is not supported. But it can work if you remove the compatability version of `gcc-14` and replace it with `gcc-13` from Fedora 41 repos. [Refer to the writeup for whisier_dictation](https://github.com/themanyone/whisper_dictation#Preparation).
 
 You may run into [issues](https://github.com/ggerganov/whisper.cpp/issues/1587) that make you want to try compiling with `-allow-unsupported-compiler`. Not recommended. The `-ng` (no graphics) flag will make it work though. Runing with `-ng` is not ideal, but matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
 
@@ -102,6 +102,11 @@ To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just ove
 ./whisper-server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
 
+This works, for testing. But for better results, you may want to [install some Voice Activity Detection](https://github.com/ggml-org/whisper.cpp?tab=readme-ov-file#voice-activity-detection-vad) (VAD) and start `whisper-server` that way, e.g.
+
+```shell
+whisper-server -l en -vm models/ggml-silero-v6.2.0.bin --vad -m models/ggml-base.en-q5_1.bin --convert --port 7777
+```
 Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
 
 Run it.
@@ -158,6 +163,6 @@ Thanks for trying voice_typing!
 - Buy me a coffee https://buymeacoffee.com/isreality
 - [TheNerdShow.com](http://thenerdshow.com/)
 
-Copyright (C) 2024-2025 Henry Kroll III, www.thenerdshow.com.
+Copyright (C) 2024-2026 Henry Kroll III, www.thenerdshow.com.
 See [LICENSE](LICENSE) for details.
 
