@@ -1,15 +1,19 @@
 # Voice Typing with Openai-Whisper
 
-State-of-the-art, offline voice typing in Linux tty (or WFL sesson on Windows.) with a tiny bash script.
+State-of-the-art, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script.
 
-**No grapical OS required.** Yet it *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
+**No grapical OS required.** Yet the voice keyboard *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
 
-- Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition,
-- Hands-free using `sox` for rudimentary voice activity detection (VAD).
+- Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition.
+- Organic software (free, off-grid, open-source, unrestrictive licenses).
+- Promotes peace through expediting communication and understanding.
+- Hands-free utilizing `sox` for rudimentary sound-level detection (VAD).
 - Leverages `ydotool` to type text into any active window with a virtual keyboard.
 - Low memory requirements. Resources may be freed between each spoken interaction.
 
 ## Caveats
+
+**Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up. And we'll see you next time!
 
 When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper, which causes a noticeable wait before text appears. It is good for occasional use. And it is the most economical on resources.
 
@@ -17,7 +21,7 @@ For heavier usage, instead of loading and unloading Whisper multiple times, we h
 
 For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
 
-**End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool). If you have time, take [record.py](https://github.com/themanyone/whisper_dictation/blob/main/record.py) from [whisper_dictation](https://github.com/themanyone/whisper_dictation.git). Just (click to download the file) and adapt this script to use that instead of `sox`. It runs a delay loop "time machine" that rewinds to catch the beginning of speech. So you don't have to clear your throat or say, "hey Linus" before talking. Gstreamer-1.0 is required to run it though. And some people prefer minimal [emebeded systems on a chip](https://www.reddit.com/r/embedded/comments/16xakmp/how_to_design_a_simple_pcb_running_linux/).
+**End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool).
 
 ## Requirements
 - [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
@@ -79,11 +83,12 @@ journalctl -u ydotoold -b | tail -n 20
 
 Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
 
-```
+Install voice_typing
+```shell
 git clone https://github.com/themanyone/voice_typing.git
 sudo systemctl enable ydotool.service
 sudo systemctl start ydotool.service
-ydotool type hello!
+ydotool type hello! # test
 cd voice_typing
 ./voice_typing
 ```
@@ -92,9 +97,7 @@ Speak and text appears. No other interaction is required.
 
 ## Optional Whisper.cpp client/server setup.
 
-Compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We are using cuBLAS for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms to install the compatability version of `gcc`, currently `gcc-13`. Fedora 42 with version 15 of gcc is not supported. But it can work if you remove the compatability version of `gcc-14` and replace it with `gcc-13` from Fedora 41 repos. [Refer to the writeup for whisier_dictation](https://github.com/themanyone/whisper_dictation#Preparation).
-
-You may run into [issues](https://github.com/ggerganov/whisper.cpp/issues/1587) that make you want to try compiling with `-allow-unsupported-compiler`. Not recommended. The `-ng` (no graphics) flag will make it work though. Runing with `-ng` is not ideal, but matrix multiplcations will still use cuBLAS for CPU, so about 2x speedup similar to openBLAS.
+The `whisper-cpp` executable is available in the repos. But you may prefer to compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We compiled using `cmake -B build -DGGML_CUDA=1 -DWHISPER_SDL2=ON -DWHISPER_FFMPEG=yes` for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms for a CUDA-compatible version of `gcc`, such as `g++-14`.
 
 To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits, which is also usable with no graphics card).
 
@@ -102,14 +105,14 @@ To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just ove
 ./whisper-server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
 
-This works, for testing. But for better results, you may want to [install some Voice Activity Detection](https://github.com/ggml-org/whisper.cpp?tab=readme-ov-file#voice-activity-detection-vad) (VAD) and start `whisper-server` that way, e.g.
+This works, for testing. But for even better results, you may want to [install some Voice Activity Detection](https://github.com/ggml-org/whisper.cpp?tab=readme-ov-file#voice-activity-detection-vad) (VAD) and start `whisper-server` that way, e.g.
 
 ```shell
 whisper-server -l en -vm models/ggml-silero-v6.2.0.bin --vad -m models/ggml-base.en-q5_1.bin --convert --port 7777
 ```
 Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
 
-Run it.
+Run the client.
 ```shell
 ./voice_client
 ```
@@ -153,6 +156,7 @@ Thanks for trying voice_typing!
 
 - [Whisper Typer Tool](https://github.com/dynamiccreator/whisper-typer-tool)
 - [Whisper Dictation](https://github.com/themanyone/whisper_dictation.git)
+- [BabelFish Universal Translator](https://github.com/themanyone/BabelFish)
 
 ### Thanks for trying out Voice Typing!
 
@@ -163,6 +167,6 @@ Thanks for trying voice_typing!
 - Buy me a coffee https://buymeacoffee.com/isreality
 - [TheNerdShow.com](http://thenerdshow.com/)
 
-Copyright (C) 2024-2026 Henry Kroll III, www.thenerdshow.com.
+Copyright (C) 2026 Henry Kroll III, www.thenerdshow.com.
 See [LICENSE](LICENSE) for details.
 
