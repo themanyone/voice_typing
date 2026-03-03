@@ -15,11 +15,11 @@ State-of-the-art, offline voice typing/real-time voice translation in Linux tty 
 
 **Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up. And we'll see you next time!
 
-When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper, which causes a noticeable wait before text appears. It is good for occasional use. And it is the most economical on resources.
+When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
 
-For heavier usage, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to your [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server may run continuously on the same machine, or a dedicated GPU server somewhere across the network. Try it. Users might discover significant speedup. :)
+For longer sessions, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to your [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server keeps running in the background, on the same machine. And it can be configured to start and stop with the app. Or it can run continuously on a dedicated server somewhere across the network. Try it. Users might discover significant speedup. :)
 
-For even-faster, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
+For slightly more-accurate, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
 
 **End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool).
 
@@ -83,7 +83,8 @@ journalctl -u ydotoold -b | tail -n 20
 
 Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
 
-Install voice_typing
+Install voice_typing, make sure `ydotool` works, and it's good to go.
+
 ```shell
 git clone https://github.com/themanyone/voice_typing.git
 sudo systemctl enable ydotool.service
@@ -95,9 +96,15 @@ cd voice_typing
 
 Speak and text appears. No other interaction is required.
 
-## Optional Whisper.cpp client/server setup.
+## Launch client in tray
 
-The `whisper-cpp` executable is available in the repos. But you may prefer to compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with some type of acceleration for best results. We compiled using `cmake -B build -DGGML_CUDA=1 -DWHISPER_SDL2=ON -DWHISPER_FFMPEG=yes` for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms for a CUDA-compatible version of `gcc`, such as `g++-14`.
+If there is a server avavailable, edit `voice_client` to change the server location from `localhost` to wherever it resides on the network.
+
+Launch `voice_client` in text terminal. Or if there is a window manager available, install `Guake` to launch in tray with a hotkey: `guake -e voice_client`
+
+## Server setup
+
+The `whisper-cpp` executable is available in the repos. But power users may prefer to compile [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) with GPU optimizations for best results. We compiled using `cmake -B build -DGGML_CUDA=1 -DWHISPER_SDL2=ON -DWHISPER_FFMPEG=yes` for about 4x speedup. If it complains about unsupported compiler, the best option is to search for rpms for a CUDA-compatible version of `gcc`, such as `g++-14`.
 
 To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just over 111 MiB VRAM on our budget laptop. (48MiB with `ggml-tiny.en-q4_0.bin` quantized to 4Bits, which is also usable with no graphics card).
 
@@ -105,16 +112,52 @@ To minimize resources, launch `server` with `ggml-tiny.en.bin`. It uses just ove
 ./whisper-server -l en -m models/ggml-tiny.en.bin --port 7777 --convert
 ```
 
-This works, for testing. But for even better results, you may want to [install some Voice Activity Detection](https://github.com/ggml-org/whisper.cpp?tab=readme-ov-file#voice-activity-detection-vad) (VAD) and start `whisper-server` that way, e.g.
+This works, for testing. But for even better results, try [install some Voice Activity Detection](https://github.com/ggml-org/whisper.cpp?tab=readme-ov-file#voice-activity-detection-vad) (VAD) and start `whisper-server` that way, e.g.
 
 ```shell
 whisper-server -l en -vm models/ggml-silero-v6.2.0.bin --vad -m models/ggml-base.en-q5_1.bin --convert --port 7777
 ```
-Edit `voice_client` to change the server location from localhost to wherever it resides on the network.
 
-Run the client.
+## Industrial client/server on same machine
+
+For the professional at home, at work, and on the go, we have `voice_client_local` pre-configured for noisy environments, with a couple added lines to start and stop the server with the app:
+
 ```shell
-./voice_client
+systemctl --user start whisper.service
+
+cleanup () {
+    systemctl --user stop whisper.service
+```
+
+To avoid using `sudo`, configure whisper server to run as a user service:
+
+```shell
+cat <<EOF>$HOME/.config/systemd/user/whisper.service
+Description=Run Whisper server
+Documentation=https://github.com/openai/whisper
+
+[Service]
+ExecStart=$HOME/.local/bin/whisper-server \
+-m $HOME/Downloads/src/whisper.cpp/models/ggml-medium-q5_0.bin \
+-sns --convert --port 7777
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+This will create `$HOME/.config/systemd/user/whisper.service` which should be edited for the preferred port, model, vad, etc. We're still using port 7777 to avoid conflicts.
+
+Next, run `systemctl --user daemon-reload` to make the service available.
+
+Install `Guake` and launch `guake - e voice_client_local` with a hotkey, such as Alt-Ctrl-V.
+
+## Other terminals
+
+Instead of launching in the tray with `Guake`, the script may be launched with `xterm` e.g. `xterm -e voice_client_local` or any other terminal. It does not actually need a desktop to run. But if it does run on the desktop, we can use `ydotool` to press Alt-Tab. That should return control to whatever desktop app was running before it was launched. Add a line like this.
+
+```shell
+sleep 0.25 && ydotool key 56:0 42:0 56:1 15:1 56:0 15:0
 ```
 
 ## Notes
@@ -150,8 +193,6 @@ Linking to the Expected Socket.
 
 Report others issues in the [GitHub issue tracker](https://github.com/themanyone/voice_typing).
 
-Thanks for trying voice_typing!
-
 ## Similar Projects
 
 - [Whisper Typer Tool](https://github.com/dynamiccreator/whisper-typer-tool)
@@ -169,4 +210,3 @@ Thanks for trying voice_typing!
 
 Copyright (C) 2026 Henry Kroll III, www.thenerdshow.com.
 See [LICENSE](LICENSE) for details.
-
