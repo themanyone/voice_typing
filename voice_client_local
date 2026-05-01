@@ -51,6 +51,7 @@ trans(){
         # Thanks for watching! seems to occur frequently due to noise.
         if [[ ${#extracted_text} > 15 ]] && ! [[ "$extracted_text" =~ "Thanks for watching" ]] \
             && ! [[ "$extracted_text" =~ '[' ]]; then
+#            ydotool type $(llama_edit "$extracted_text")
             ydotool type "$extracted_text"
         fi &
     done < "$audio_fifo"
@@ -67,7 +68,7 @@ while true; do
 
     # Listen to the mic.
     # The `1 0.2 6%` part of this command trims one clip of silence
-    # from the beginning. 4% of max volume is considered silence here.
+    # from the beginning. 6% of max volume is considered silence here.
     # `1 1.0 8%` stops after a 1.0 second pause in speech.
     # If recording never stops, increase sound threshold from 8%
     # to 10% or more. This can happen with poor recording equipment

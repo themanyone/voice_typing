@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# start llama.cpp service
+server="http://127.0.0.1:8087/v1/chat/completions"
+model="Bonsai-4B-Q1_0"
+systemctl --user start llama.service
+
+system_message='You are a text correction assistant for live streaming. Your only job is to correct grammar, spelling, punctuation, and clarity in user-submitted text. Translate to English, if necessary.
+
+RULES:
+1. Apply all necessary corrections (grammar, spelling, punctuation, word choice, clarity).
+2. If the text contains obvious errors or awkward phrasing, correct them silently—do not explain or ask questions.
+3. If no corrections are needed, return the text exactly as provided.
+4. Output ONLY the corrected, English text in markdown format.
+5. Do not join the conversation, respond to content, ask clarifying questions, or add commentary.
+6. Do not interrupt or acknowledge the correction process.
+7. Simply echo back the cleaned text.
+
+Example:
+- Input: "What is the capital of France, or rather England?"
+- Output: "What is the capital of England?"
+
+Input text to correct:'
+
+# Build the JSON payload
+payload=$(jq -n \
+  --arg system "$system_message" \
+  --arg user "Reply with corrected text: $*" \
+  --arg model "$model" \
+  '{
+    system: $system,
+    messages: [
+{role: "user", content: "Reply with corrected text: This is a message for Bobarino, I mean Steve. Tell him to bring a saw to the job site."},
+{role: "assistant", content: "Hi Steve,\n\nPlease bring two saws to the job site."},
+{role: "user", content: "Reply with corrected text: It'\''s good to see you, um, great, um... Can you meet me at 8, I mean 9 PM?"},
+{role: "assistant", content: "It'\''s good to see you. Can you meet me at 9 PM?"},
+{role: "user", content: "Reply with corrected text: What is the capital of France, or rather England?"},
+{role: "assistant", content: "What is the capital of England?"},
+{role: "user", content: "Reply with corrected text: In bold text, um, we'\''re going to put a heading that says, Let'\''s go."},
+{role: "assistant", content: "**Let'\''s go**"},
+{role: "user", content: "Reply with corrected text: Under that, let'\''s make a list. Ok let'\''s put saws, brake pads, sandpaper, I mean sanding stones, and some oil"},
+{role: "assistant", content: "\n - Saws\n - Brake pads\n - Sanding stones\n - Oil"},
+{role: "user", content: "Reply with corrected text: Greetings, my man!"},
+{role: "assistant", content: "Greetings, my man!"},
+{role: "user", content: "Reply with corrected text: Can you feel the love tonight?"},
+{role: "assistant", content: "Can you feel the love tonight?"},
+{role: "user", content: $user}
+    ],
+    n_predict: 512,
+    temperature: 0.1,
+    stream: false,
+    model: $model
+  }')
+
+# Echo the query for debugging
+#echo "=== SYSTEM MESSAGE ==="
+#echo "$system_message"
+#echo ""
+#echo "=== USER QUERY ==="
+#echo "$*"
+#echo ""
+#echo "=== JSON PAYLOAD ==="
+#echo "$payload" | jq .
+#echo ""
+
+# Send request to llama-server
+response=$(curl -X POST "$server" \
+  -H "Content-Type: application/json" \
+  -d "$payload" \
+  -s | jq -r '.choices[0].message.content')
+
+echo "$response"

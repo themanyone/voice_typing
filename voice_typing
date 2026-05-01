@@ -40,6 +40,7 @@ trans(){
         if [[ ${#output} > 15 ]] || [[ "$output" != "Thanks for watching!" ]] \
             && [[ "$output" != *'['* ]]; then
             ydotool type "$output"
+#            ydotool type $(llama_edit "$output")
         fi &
     done < "$audio_fifo"
     #cleanup

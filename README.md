@@ -1,15 +1,39 @@
 # Voice Typing with Openai-Whisper
 
-State-of-the-art, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script.
+State-of-the-art, private, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script. No subscription necessary.
 
 **No grapical OS required.** Yet the voice keyboard *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
 
 - Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition.
 - Organic software (free, off-grid, open-source, unrestrictive licenses).
-- Promotes peace through expediting communication and understanding.
-- Hands-free utilizing `sox` for rudimentary sound-level detection (VAD).
-- Leverages `ydotool` to type text into any active window with a virtual keyboard.
+- Promotes peace through expediting communications and understanding.
+- Hands-free utilizing `sox` for rudimentary sound-level detection.
+- Voice keyboard leverages `ydotool` to type text into any active window.
 - Low memory requirements. Resources may be freed between each spoken interaction.
+
+## Whisper flow
+
+There is a popular app with a name similar to Whisper flow. It applies edits using an LLM. So instead of typing out what you say, verbatim, it types more or less what you intended to say. We have included a program, called `llama_edit` to mimic that functionality. It is disabled by default. So if you don't need it, skip this section.
+
+This alpha version of `llama_edit` is cutting-edge development, so feel free to improve. It should work okay with some small, fast models. It is currently set up to use [prism-ml/Bonsai-1.7B](https://huggingface.co/prism-ml/Bonsai-1.7B-gguf) locally, with [llama.cpp](https://github.com/ggml-org/llama.cpp) so everything stays private.
+
+Edit `llama_edit` with the server location and language model you want to use. Test it like this:
+
+```shell
+./llama_edit Please, uh, tell Joe, I mean Josh to bring back the cones from the job site.
+Please tell Josh to bring back the cones from the job site.
+```
+
+Once you are satisfied that it works, install `llama_edit` somewhere in your path.
+
+`cp llama_edit ~/.local/bin`
+
+Then, in whatever client you choose, comment out the existing call to `ydotool`. And uncomment the line to pass the results thru `llama_edit` first, like this.
+
+```shell
+# ydotool type "$extracted_text"
+ydotool type $(llama_edit "$extracted_text")
+```
 
 ## Caveats
 
@@ -98,9 +122,9 @@ Speak and text appears. No other interaction is required.
 
 ## Launch client in tray
 
-If there is a server avavailable, edit `voice_client` to change the server location from `localhost` to wherever it resides on the network.
+If there is a server available, edit `voice_client` to change the server location from `localhost` to wherever it resides on the network.
 
-Launch `voice_client` in text terminal. Or if there is a window manager available, install `Guake` to launch in tray with a hotkey: `guake -e voice_client`
+Launch a voice client in text terminal. Or if there is a window manager available, install `Guake` to launch in tray with a hotkey: `guake -e voice_client_local`
 
 ## Server setup
 
