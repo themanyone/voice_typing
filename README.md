@@ -11,13 +11,15 @@ State-of-the-art, private, offline voice typing/real-time voice translation in L
 - Voice keyboard leverages `ydotool` to type text into any active window.
 - Low memory requirements. Resources may be freed between each spoken interaction.
 
+We invite you to examine `voice_typing` and `voice_client` scripts and see how easy they are to customize for any occasion. They are around 50-75 lines is all. Do not run untrusted code.
+
 ## Whisper flow
 
 There is a popular app with a name similar to Whisper flow. It applies edits using an LLM. So instead of typing out what you say, verbatim, it types more or less what you intended to say. We have included a program, called `llama_edit` to mimic that functionality. It is disabled by default. So if you don't need it, skip this section.
 
-This alpha version of `llama_edit` is cutting-edge development, so feel free to improve. It should work okay with some small, fast models. It is currently set up to use [prism-ml/Bonsai-1.7B](https://huggingface.co/prism-ml/Bonsai-1.7B-gguf) locally, with [llama.cpp](https://github.com/ggml-org/llama.cpp) so everything stays private.
+This alpha version of `llama_edit` should work okay with some small, fast models. It is currently set up to use [prism-ml/Bonsai-1.7B](https://huggingface.co/prism-ml/Bonsai-1.7B-gguf) locally, with [llama.cpp](https://github.com/ggml-org/llama.cpp) so try those out first.
 
-Edit `llama_edit` with the server location and language model you want to use. Test it like this:
+Edit `llama_edit` with the server location and preferred language model. Test it like this:
 
 ```shell
 ./llama_edit Please, uh, tell Joe, I mean Josh to bring back the cones from the job site.
@@ -28,38 +30,41 @@ Once you are satisfied that it works, install `llama_edit` somewhere in your pat
 
 `cp llama_edit ~/.local/bin`
 
-Then, in whatever client you choose, comment out the existing call to `ydotool`. And uncomment the line to pass the results thru `llama_edit` first, like this.
+Then, in whatever client you choose, comment out the existing call to `ydotool`. And uncomment the line to filter the result text thru `llama_edit`, like this.
 
 ```shell
 # ydotool type "$extracted_text"
 ydotool type $(llama_edit "$extracted_text")
 ```
 
-## Caveats
+## Choosing a Client
 
-**Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up. And we'll see you next time!
+**Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up, and be off on your Windows journey. We will see you next time!
 
-When `voice_typing` detects speech, it trims unwanted background noise, and then loads Whisper for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
+[voice_typing](voice_typing) loads Whisper for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
 
-For longer sessions, instead of loading and unloading Whisper multiple times, we have added `voice_client`. It connects to your [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server. The server keeps running in the background, on the same machine. And it can be configured to start and stop with the app. Or it can run continuously on a dedicated server somewhere across the network. Try it. Users might discover significant speedup. :)
+[voice_client_local](voice_client_local) connects to a [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server that runs, in the background, on the same machine. The server is configured to start and stop with the app. These client/server setups reduce delays but use a little more resources.
 
-For slightly more-accurate, continuous, networked dictation with more features, try the [whisper_dictation](https://github.com/themanyone/whisper_dictation.git) AI assistant project. Features include a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
+[voice_client](voice_client) is intended to connect to a sever that runs continuously somewhere else on the network. It lacks extra code to start and stop the server.
+
+[whisper_dictation](https://github.com/themanyone/whisper_dictation.git) is a separate, AI assistant project with a conversational chatbot, AI image generation, and voice-controlled program launchers leveraging the full power of Python.
 
 **End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool).
 
 ## Requirements
-- [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
-- [ffmpeg](https://ffmpeg.org/)
-- [sox](https://sox.sourceforge.net/)
-- [lame](https://lame.sourceforge.io/)
-- [ydotool](https://github.com/ReimuNotMoe/ydotool)
-- [jq](https://jqlang.org/)
-- [tmux](https://github.com/tmux/tmux/wiki) or [screen](https://linuxize.com/post/how-to-use-linux-screen/) (optional)
-- [curl](https://curl.se/) (for clients)
+- [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) decodes speech
+- [ffmpeg](https://ffmpeg.org/) used by whisper/whisper.cpp
+- [sox](https://sox.sourceforge.net/) for recording audio
+- [lame](https://lame.sourceforge.io/) used by sox to write mp3 files
+- [ydotool](https://github.com/ReimuNotMoe/ydotool) virtual keyboard
+- [jq](https://jqlang.org/) for decoding JSON
+- [curl](https://curl.se/) for client requests
 
 ## Install Dependencies
 
-This assumes [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and dependencies are installed and working. Most are available through the official software update app for each platform. Please examine `voice_typing` and `voice_client` scripts and see how easy they are to customize for any occasion. They are around 50 lines is all. Do not run untrusted code.
+**Whisper** You will need [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and dependencies installed and working. Most of the dependencies are available through the official software update app for each platform.
+
+**Ydotool.** There is a tutorial for [building and installing ydotool](https://gabrielstaples.com/ydotool-tutorial). What follows is a brief summary for some systems that already have packages for it.
 
 Fedora/Centos:
 ```
@@ -72,9 +77,7 @@ sudo systemctl start ydotool
 sudo chmod +s $(which ydotool)
 ```
 
-You might need Rpmfusion-freeworld installed to get versions of `lame` and `sox` that write mp3 files. `sudo dnf install \ https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm`
-
-The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` where they say the man page may not be up to date.
+The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` where they say the man page may not be up to date. 
 
 Debian-based systems:
 ```
@@ -186,12 +189,10 @@ sleep 0.25 && ydotool key 56:0 42:0 56:1 15:1 56:0 15:0
 
 ## Notes
 
-- Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher.
-```rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%```
+- Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher, like 6% and 5%: `rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%`
+- Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it can go into a recording loop and never get around to typing text.
 
-- Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it goes into a recording loop and never gets around to typing text.
-
-- First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download the model (tiny))
+- First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download a model.
 
 ## Troubleshooting
 "failed to connect socket `/tmp/.ydotool_socket': Permission denied" Error
