@@ -190,7 +190,7 @@ sleep 0.25 && ydotool key 56:0 42:0 56:1 15:1 56:0 15:0
 ## Notes
 
 - Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher, like 6% and 5%: `rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%`
-- Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it can go into a recording loop and never get around to typing text.
+- Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it can go into a recording loop and never get around to typing text. If your system has pulseaudio, this might work for you: `pactl set-source-mute $(pactl get-default-source) toggle`
 
 - First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download a model.
 
