@@ -17,6 +17,36 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
+# ── model path resolution ────────────────────────────────────────────────────
+# Priority: WHISPER_MODEL env var > common locations
+resolve_model() {
+    local model="${WHISPER_MODEL:-}"
+    [ -n "$model" ] && [ -f "$model" ] && echo "$model" && return 0
+
+    # Try a few common locations
+    local candidates=(
+        "./models/ggml-tiny.en.bin"
+        "$HOME/Downloads/src/whisper.cpp/models/ggml-tiny.en-q4_0.bin"
+        "$HOME/Downloads/src/whisper.cpp/models/ggml-tiny.en.bin"
+        "$HOME/.local/share/whisper.cpp/ggml-tiny.en-q4_0.bin"
+        "/usr/local/share/whisper.cpp/ggml-tiny.en-q4_0.bin"
+    )
+    for c in "${candidates[@]}"; do
+        if [ -f "$c" ]; then
+            echo "$c"
+            return 0
+        fi
+    done
+    return 1
+}
+
+MODEL=$(resolve_model)
+if [ -z "$MODEL" ]; then
+    echo "whisper model not found. Set WHISPER_MODEL or download one:" >&2
+    echo "  cd whisper.cpp && bash models/download-ggml-model.sh tiny.en" >&2
+    exit 1
+fi
+
 # fifo queue to hold temporary audio file names
 audio_fifo=$(mktemp); rm "$audio_fifo" ; mkfifo "$audio_fifo"
 
@@ -35,18 +65,18 @@ trap cleanup 0
 # function to process audio files from queue
 trans(){
     while read audio; do
-        # transcribe audio
-        whisper "$audio" --fp16 False --language English --model tiny\
-        --output_format txt --output_dir /tmp
+        # transcribe audio with whisper-cli (whisper.cpp)
+        whisper-cli -f "$audio" -l en -m "$MODEL" -sns \
+            -otxt -of /tmp/tmp -np 2>/dev/null
         # remove temporary audio file
         rm -f "$audio"
-        output="$(</tmp/tmp.txt)"; rm -f /tmp/tmp.txt
+        # read output and trim leading/trailing whitespace
+        output="$(cat /tmp/tmp.txt 2>/dev/null)"; rm -f /tmp/tmp.txt
+        output="${output#"${output%%[! ]*}"}"  # trim leading spaces
         # Type text to terminal, in background
-        # Thanks for watching! seems to occur frequently due to noise.
-        if [[ ${#output} > 15 ]] || [[ "$output" != "Thanks for watching!" ]] \
-            && [[ "$output" != *'['* ]]; then
+        if [[ ${#output} -gt 0 ]]; then
             if [ "$use_flow" = true ]; then
-                ydotool type $(llama_edit "$output")
+                ydotool type "$(llama_edit "$output")"
             else
                 ydotool type "$output"
             fi

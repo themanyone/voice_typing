@@ -1,10 +1,10 @@
-# Voice Typing with Openai-Whisper
+# Voice Typing with whisper.cpp
 
 State-of-the-art, private, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script. No subscription necessary.
 
 **No grapical OS required.** Yet the voice keyboard *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
 
-- Privacy-focused. Uses [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition.
+- Privacy-focused. Uses [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition.
 - Organic software (free, off-grid, open-source, unrestrictive licenses).
 - Promotes peace through expediting communications and understanding.
 - Hands-free utilizing `sox` for rudimentary sound-level detection.
@@ -36,7 +36,7 @@ Once you are satisfied that it works, install `llama_edit` where you installed t
 
 **Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up, and be off on your Windows journey. We will see you next time!
 
-[voice_typing](voice_typing) loads Whisper for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
+[voice_typing](voice_typing) loads `whisper-cli` for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
 
 [voice_client_local](voice_client_local) connects to a [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) server that runs, in the background, on the same machine. The server is configured to start and stop with the app. These client/server setups reduce delays but use a little more resources.
 
@@ -47,8 +47,8 @@ Once you are satisfied that it works, install `llama_edit` where you installed t
 **End feature creep.** This project is just a starting point, and will remain so. [There is no end to what you might do from here](https://github.com/ReimuNotMoe/ydotool).
 
 ## Requirements
-- [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) decodes speech
-- [ffmpeg](https://ffmpeg.org/) used by whisper/whisper.cpp
+- [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) decodes speech
+- [ffmpeg](https://ffmpeg.org/) used by whisper.cpp
 - [sox](https://sox.sourceforge.net/) for recording audio
 - [lame](https://lame.sourceforge.io/) used by sox to write mp3 files
 - [ydotool](https://github.com/ReimuNotMoe/ydotool) virtual keyboard
@@ -57,9 +57,21 @@ Once you are satisfied that it works, install `llama_edit` where you installed t
 
 ## Install Dependencies
 
-**Whisper** You will need [Whisper AI](https://github.com/openai/whisper) or [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) and dependencies installed and working. Most of the dependencies are available through the official software update app for each platform.
+**Whisper.cpp** This project depends on [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). But you can always modify voice_typing to use whisper python, if you have it.
 
-**Ydotool.** There is a tutorial for [building and installing ydotool](https://gabrielstaples.com/ydotool-tutorial). What follows is a brief summary for some systems that already have packages for it.
+Most other dependencies are available through the official software update app for each platform.
+
+**Ydotool.** Installation has proven difficult. As an alternative, an experimental installer is included that handles distro detection, package installation (or source build), systemd service setup, permission fixes, and verification:
+
+```shell
+sudo ./install_ydotoold
+```
+
+It supports Fedora, Debian/Ubuntu, and Arch, with a source-build fallback and a success checklist at the end. See the script for details.
+
+**Manual Install.** There is a tutorial for [building and installing ydotool](https://gabrielstaples.com/ydotool-tutorial). What follows is a brief summary for some systems that already have packages for it.
+
+These are the steps programmed into the installer for now.
 
 Fedora/Centos:
 ```
@@ -72,7 +84,7 @@ sudo systemctl start ydotool
 sudo chmod +s $(which ydotool)
 ```
 
-The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` where they say the man page may not be up to date. 
+The `ydotool` package has instructions in `/usr/share/doc/ydotool/README.md` where they say the man page may not be up to date.
 
 Debian-based systems:
 ```
