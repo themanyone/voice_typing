@@ -55,21 +55,39 @@ Once you are satisfied that it works, install `llama_edit` where you installed t
 - [jq](https://jqlang.org/) for decoding JSON
 - [curl](https://curl.se/) for client requests
 
-## Install Dependencies
+## Installation
 
-**Whisper.cpp** This project depends on [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). But you can always modify voice_typing to use whisper python, if you have it.
+An `install.sh` script is available for testing on Fedora, Debian/Ubuntu, and Arch. Ideally, installation should flow like this.
+
+```shell
+git clone https://github.com/themanyone/voice_typing.git
+cd voice_tying
+./install.sh
+    # follow prompts
+
+ydotool type hello! # types hello! to terminal
+./voice_typing
+```
+
+Speak and text appears. No other interaction is required.
+
+## Manual Install
+
+These are the installation steps, in case the installer misses something.
+
+**Dependencies.** This project depends on [Whisper.cpp](https://github.com/ggerganov/whisper.cpp). The installer will detect, or attempt to build whisper.cpp with acceleration, falling back to CPU if necessary. But it won't install accelerated toolkits and drivers for you. You can also modify voice_typing to use whisper python.
 
 Most other dependencies are available through the official software update app for each platform.
 
-**Ydotool.** Installation has proven difficult. As an alternative, an experimental installer is included that handles distro detection, package installation (or source build), systemd service setup, permission fixes, and verification:
+**Ydotool.** Installation has proven difficult. To keep bug reports seperate, `install.sh` calls `install_ydotoold.sh` to help with systemd service setup, permission fixes, and verification that it works.
 
 ```shell
-sudo ./install_ydotoold
+sudo ./install_ydotoold.sh
 ```
 
 It supports Fedora, Debian/Ubuntu, and Arch, with a source-build fallback and a success checklist at the end. See the script for details.
 
-**Manual Install.** There is a tutorial for [building and installing ydotool](https://gabrielstaples.com/ydotool-tutorial). What follows is a brief summary for some systems that already have packages for it.
+There is a tutorial for [building and installing ydotool](https://gabrielstaples.com/ydotool-tutorial). What follows is a brief summary for some systems that already have packages for it.
 
 These are the steps programmed into the installer for now.
 
@@ -112,23 +130,6 @@ For quick troubleshooting
 sudo systemctl status ydotoold  # Should show "Active: active (running)"
 journalctl -u ydotoold -b | tail -n 20
 ```
-
-## Setup
-
-Edit `.bashrc` and add the line, `export YDOTOOL_SOCKET=/tmp/.ydotool_socket`
-
-Install voice_typing, make sure `ydotool` works, and it's good to go.
-
-```shell
-git clone https://github.com/themanyone/voice_typing.git
-sudo systemctl enable ydotool.service
-sudo systemctl start ydotool.service
-ydotool type hello! # test
-cd voice_typing
-./voice_typing
-```
-
-Speak and text appears. No other interaction is required.
 
 ## Launch client in tray
 
