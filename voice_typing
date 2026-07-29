@@ -67,20 +67,40 @@ trans(){
     while read audio; do
         # transcribe audio with whisper-cli (whisper.cpp)
         whisper-cli -f "$audio" -l en -m "$MODEL" -sns \
-            -otxt -of /tmp/tmp -np 2>/dev/null
+            -otxt -of /tmp/tmp_voice_typing -np 2>/dev/null
         # remove temporary audio file
         rm -f "$audio"
-        # read output and trim leading/trailing whitespace
-        output="$(cat /tmp/tmp.txt 2>/dev/null)"; rm -f /tmp/tmp.txt
-        output="${output#"${output%%[! ]*}"}"  # trim leading spaces
-        # Type text to terminal, in background
-        if [[ ${#output} -gt 0 ]]; then
+	# get extracted text from tmp file & delete it
+        extracted_text=$(</tmp/tmp_voice_typing.txt)
+	rm -f /tmp/tmp_voice_typing.txt
+        # strip whitespace & log text to the terminal
+	extracted_text="${extracted_text//$'\n'/}"
+	extracted_text="${extracted_text## }"
+        echo "${extracted_text}"
+        # Some basic editing commands -s case-insensitive
+	shopt -s nocasematch
+        if [[ "$extracted_text" =~ "New line." ]] || [[ "$extracted_text" =~ "Enter." ]] || [[ "$extracted_text" =~ "Submit." ]]; then
+            ydotool key 28:1 28:0
+        elif [[ "$extracted_text" =~ "New paragraph." ]]; then
+            ydotool key 28:1 28:0 28:1 28:0
+        elif [[ "$extracted_text" =~ "Period." ]] || [[ "$extracted_text" =~ "Full stop." ]]; then
+            ydotool key 14:1 14:0 52:1 52:0 57:1 57:0
+	elif [[ "$extracted_text" =~ "Backspace." ]]; then
+	    ydotool key 14:1 14:0
+        elif [[ "$extracted_text" =~ "Undo that." ]] || [[ "$extracted_text" =~ "Scratch that." ]]; then
+            ydotool key 29:1 53:1 53:0 44:1 44:0 29:0
+        elif [[ "$extracted_text" =~ "Shift Enter." ]] || [[ "$extracted_text" =~ "Send it." ]]; then
+             ydotool key 42:1 28:1 28:0 42:0
+        # Thanks for watching! seems to occur frequently in these models
+        elif (( ${#extracted_text} > 3 )) && ! [[ "$extracted_text" =~ "Thanks for watching" ]] \
+            && ! [[ "$extracted_text" =~ '[' ]]; then
             if [ "$use_flow" = true ]; then
-                ydotool type "$(llama_edit "$output")"
+                ydotool type $(llama_edit "$extracted_text")" "
             else
-                ydotool type "$output"
+                ydotool type "${extracted_text} "
             fi
         fi &
+	shopt -u nocasematch
     done < "$audio_fifo"
     #cleanup
     rm -f "$audio_fifo"
@@ -94,14 +114,14 @@ while true; do
     trap 'rm "$tmp" ; exit' INT
 
     # Listen to the mic.
-    # The `1 0.2 4%` part of this command trims one clip of silence
-    # from the beginning. 4% of max volume is considered silence here.
-    # `1 1.0 2%` stops after a 1.0 second pause in speech.
-    # If recording never stops, increase sound threshold from 2%
-    # to 5% or more. This can happen with poor recording equipment
+    # The `1 0.2 6%` part of this command trims one clip of silence
+    # from the beginning. 6% of max volume is considered silence here.
+    # `1 1.0 8%` stops after a 1.0 second pause in speech.
+    # If recording never stops, increase sound threshold from 8%
+    # to 10% or more. This can happen with poor recording equipment
     # or noisy environments with heaters and fans going.
 
-    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 4% 1 1.0 2%
+    rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 8%
 
     # echo temporary audio file name to transcription queue
     echo "$tmp"

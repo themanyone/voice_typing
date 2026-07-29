@@ -53,17 +53,34 @@ trans(){
 
         # remove temporary audio file
         rm -f "$audio"
-        echo "$extracted_text"
-        # Type text to terminal, in background
-        # Thanks for watching! seems to occur frequently due to noise.
-        if [[ ${#extracted_text} > 15 ]] && ! [[ "$extracted_text" =~ "Thanks for watching" ]] \
+        # strip whitespace & log text to the terminal
+	extracted_text="${extracted_text//$'\n'/}"
+	extracted_text="${extracted_text## }"
+        echo "${extracted_text}"
+        # Some basic editing commands -s case-insensitive
+	shopt -s nocasematch
+        if [[ "$extracted_text" =~ "New line." ]] || [[ "$extracted_text" =~ "Enter." ]] || [[ "$extracted_text" =~ "Submit." ]]; then
+            ydotool key 28:1 28:0
+        elif [[ "$extracted_text" =~ "New paragraph." ]]; then
+            ydotool key 28:1 28:0 28:1 28:0
+        elif [[ "$extracted_text" =~ "Period." ]] || [[ "$extracted_text" =~ "Full stop." ]]; then
+            ydotool key 14:1 14:0 52:1 52:0 57:1 57:0
+	elif [[ "$extracted_text" =~ "Backspace." ]]; then
+	    ydotool key 14:1 14:0
+        elif [[ "$extracted_text" =~ "Undo that." ]] || [[ "$extracted_text" =~ "Scratch that." ]]; then
+            ydotool key 29:1 53:1 53:0 44:1 44:0 29:0
+        elif [[ "$extracted_text" =~ "Shift Enter." ]] || [[ "$extracted_text" =~ "Send it." ]]; then
+             ydotool key 42:1 28:1 28:0 42:0
+        # Thanks for watching! seems to occur frequently in these models
+        elif (( ${#extracted_text} > 3 )) && ! [[ "$extracted_text" =~ "Thanks for watching" ]] \
             && ! [[ "$extracted_text" =~ '[' ]]; then
             if [ "$use_flow" = true ]; then
-                ydotool type $(llama_edit "$extracted_text")
+                ydotool type $(llama_edit "$extracted_text")" "
             else
-                ydotool type "$extracted_text"
+                ydotool type "${extracted_text} "
             fi
         fi &
+	shopt -u nocasematch
     done < "$audio_fifo"
     #cleanup
     rm -f "$audio_fifo"

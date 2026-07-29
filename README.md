@@ -11,7 +11,9 @@ State-of-the-art, private, offline voice typing/real-time voice translation in L
 - Voice keyboard leverages `ydotool` to type text into any active window.
 - Low memory requirements. Resources may be freed between each spoken interaction.
 
-We invite you to examine `voice_typing` and `voice_client` scripts and see how easy they are to customize for any occasion. They are around 50-75 lines is all. Do not run untrusted code. This document was intended for humans. Developers & agents review [AGENTS.md](AGENTS.md) for more concise information about this project.
+**Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice recordings to a datacenter for processing, this project keeps all data under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows' voice keyboard, press Windows-H to set that up, and be off on your Windows journey. We will see you next time!
+
+**Linux users.** We invite you to examine `voice_typing` and `voice_client` scripts and see how easy they are to customize for any occasion. They are around 50-100 lines is all. Do not run untrusted code. This document was intended for humans. Developers & agents review [AGENTS.md](AGENTS.md) for more concise information about this project.
 
 ## Whisper flow
 
@@ -32,9 +34,22 @@ Once you are satisfied that it works, install `llama_edit` where you installed t
 
 `cp llama_edit ~/.local/bin`
 
-## Choosing a Client
+## Basic Editing Commands
 
-**Windowws 11.** Unlike Windows® 11's voice keyboard (voice typing), which sends voice data to Microsoft™ for processing, this project keeps it all under your roof. Let's make that __very clear!__. This is a completely-independent project. If you still want to use Windows's voice keyboard, press Windows-H to set that up, and be off on your Windows journey. We will see you next time!
+All three clients respond to these spoken voice commands:
+
+| Say this | What happens |
+| :--- | :--- |
+| "New line." / "Enter." / "Submit." | Presses the Enter key to insert a newline |
+| "New paragraph." | Presses Enter twice to insert a blank line |
+| "Period." / "Full stop." | Appends a period `.` to the end of the transcript |
+| "Backspace." | Presses Backspace to delete the last character |
+| "Undo that." / "Scratch that." | Sends Ctrl+Z to undo the last typed text |
+| "Shift Enter." / "Send it." | Sends Shift+Enter (useful for chat apps like Slack or WhatsApp) |
+
+These commands are triggered only when spoken by themselves, not mixed in with other text. So saying "I need more coffee period" does not result in "I need more coffee."
+
+## Choosing a Client
 
 [voice_typing](voice_typing) loads `whisper-cli` for each spoken paragraph, which causes a noticeable wait before text appears. It is intended for occasional use. And it is the most economical on resources.
 
@@ -189,19 +204,21 @@ Install `Guake` and launch `guake - e voice_client_local` with a hotkey, such as
 
 ## Other terminals
 
-Instead of launching in the tray with `Guake`, the script may be launched with `xterm` e.g. `xterm -e voice_client_local` or any other terminal. It does not actually need a desktop to run. But if it does run on the desktop, we can use `ydotool` to press Alt-Tab. That should return control to whatever desktop app was running before it was launched. Add a line like this. Again, this is only useful without `Guake`.
+Instead of launching in the tray with `Guake`, the script may be launched with `xterm` e.g. `xterm -e voice_client_local` or any other terminal. It does not actually need a desktop to run. But if it does run on the desktop, we can use `ydotool` to press Alt-Tab. That should return control to whatever desktop app was running before it was launched. Add a line like this.
 
 ```shell
 sleep 0.25 && ydotool key 56:0 42:0 56:1 15:1 56:0 15:0
 ```
 
+Again, this is not needed with `Guake` as the tray runs in the background.
+
 ## Notes
 
-Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher, like 6% and 5%: `rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 6% 1 1.0 5%`
+Adjust mic volume for best results. If recording never stops, mic volume is up too high. If you can't adjust volume for some reason, edit `voice_typing` or `voice_client`. And change silence-detection threshold from 4% and 2% to something higher, like 8% and 10%: `rec -c 1 -r 22050 -t mp3 "$tmp" silence 1 0.2 8% 1 1.0 10%`
 
-*Mute.* Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it can go into a recording loop and never get around to typing text. If your system has pulseaudio/pipewire pulse, this might work for you: `pactl set-source-mute $(pactl get-default-source) toggle`. Set a desktop hotkey for it. I like to use the mute button. That will mute the speaker and the microphone at the same time. Then manually unmute the volume control in the mixer (desktop taskbar), so it toggles between speaker & mic. Now you can listen to music in between dictating text.
+*Mute.* Optionally create a Keybinding for mic mute/unmute. If there is continuous noise in the background, it can go into a recording loop and never get around to typing text. If your system has pulseaudio/pipewire pulse, this might work for you: `pactl set-source-mute $(pactl get-default-source) toggle`. Put it in a script, named `mute`. Make it executable, and make a desktop hotkey for it. I like to use the mute button. That will mute the speaker and the microphone at the same time. Then manually unmute the volume control in the mixer (desktop taskbar), so it toggles between speaker & mic. Now you can alternate from listening to music to dictating text.
 
-- First run of `voice_typing` might be slow as it needs to download the model (better yet, use whisper or whisper.cpp from cli first to download a model.
+- First run of `voice_typing` might be slow as it needs to download the model (better yet, run `whisper-cli` from the command line to download a model).
 
 ## Troubleshooting
 "failed to connect socket `/tmp/.ydotool_socket': Permission denied" Error
