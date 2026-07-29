@@ -1,12 +1,12 @@
 # Voice Typing with whisper.cpp
 
-State-of-the-art, private, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script. No subscription necessary.
+State-of-the-art, private, offline voice typing/real-time voice translation in Linux tty (or WFL sesson on Windows.) with a tiny bash script. Free and Open-Source. No subscription necessary.
 
-**No grapical OS required.** Yet the voice keyboard *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
+**No graphical OS required.** Yet the voice keyboard *does* work with GUI X, wayland, whatever. Speak text everywhere, like a boss.
 
 - Privacy-focused. Uses [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) for offline speech recognition.
-- Organic software (free, off-grid, open-source, unrestrictive licenses).
-- Promotes peace through expediting communications and understanding.
+- Organic software (free, off-grid, open-source, unrestrictive license).
+- Promotes peace through expediting communications and resolving conflict.
 - Hands-free utilizing `sox` for rudimentary sound-level detection.
 - Voice keyboard leverages `ydotool` to type text into any active window.
 - Low memory requirements. Resources may be freed between each spoken interaction.
@@ -17,9 +17,9 @@ State-of-the-art, private, offline voice typing/real-time voice translation in L
 
 ## Whisper flow
 
-There is a popular app with a name similar to Whisper flow. It applies edits using an LLM. So instead of typing out what you say, verbatim, it types more or less what you intended to say. We have included a program, called `llama_edit` to mimic that functionality. It is disabled by default.
+There is a popular app with a name similar to Whisper flow. It evidently applies edits using some sort of LLM. So instead of typing out what you say, verbatim, it types more or less what you intended to say. We have included a program, called `llama_edit` to mimic that functionality. It is disabled by default.
 
-To enable it, we now have added a `-flow` flag (e.g., `./voice_typing -flow`). If you don't need it, skip this section.
+To enable it, put `llama_edit` in your $PATH & use the `-flow` flag (e.g., `./voice_typing -flow`). If you don't need it, skip this section.
 
 The prompt we used in `llama_edit` works only with a few small, fast models. It is currently set up to use [prism-ml/Bonsai-1.7B](https://huggingface.co/prism-ml/Bonsai-1.7B-gguf) locally, with [llama.cpp](https://github.com/ggml-org/llama.cpp) so try those out first, before going hog-wild with other LLMs.
 
